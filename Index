@@ -1,380 +1,229 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Hora de Estudio</title>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tiempo CIM · Mónica Herrera</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-/* ===== Tokens (claro / oscuro) ===== */
-:root{--bg:#F2F5FA;--card:#fff;--ink:#14213D;--mute:#5B6785;--line:#D9E0EE;--acc:#2447E0;--acc-ink:#fff;--hl:#FFD23F;--ok:#16794C;--bad:#B3261E;--r:14px;
---serif:Georgia,"Times New Roman",serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-:root[data-theme=dark]{--bg:#0F1524;--card:#18203A;--ink:#EAF0FF;--mute:#9AA7C7;--line:#2B3556;--acc:#7C97FF;--acc-ink:#0F1524;--ok:#5ED39A;--bad:#FF8A80}
-@media(prefers-color-scheme:dark){:root[data-theme=auto]{--bg:#0F1524;--card:#18203A;--ink:#EAF0FF;--mute:#9AA7C7;--line:#2B3556;--acc:#7C97FF;--acc-ink:#0F1524;--ok:#5ED39A;--bad:#FF8A80}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--sans);padding:env(safe-area-inset-top) 0 calc(76px + env(safe-area-inset-bottom))}
-h1,h2{font-family:var(--serif);margin:0;letter-spacing:-.01em}
-h1{font-size:1.5rem}h2{font-size:1.25rem;margin-bottom:.6rem}
-header{display:flex;align-items:center;justify-content:space-between;gap:.5rem;max-width:860px;margin:0 auto;padding:1rem}
-h1 mark{background:linear-gradient(transparent 55%,var(--hl) 55%);color:inherit}
-main{max-width:860px;margin:0 auto;padding:0 1rem}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1rem;margin-bottom:1rem}
-button,input,select{font:inherit;color:inherit}
-button{min-height:44px;padding:.5rem 1rem;border-radius:10px;border:1px solid var(--line);background:var(--card);cursor:pointer}
-button.p{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:600}
-button.d{color:var(--bad)}
-button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--hl);outline-offset:2px}
-input,select{min-height:44px;padding:.4rem .7rem;border-radius:10px;border:1px solid var(--line);background:var(--bg);width:100%}
-label{display:block;font-size:.85rem;color:var(--mute);margin-bottom:.2rem}
-.grid{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
-.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
-.chk{display:flex;align-items:center;gap:.5rem;min-height:44px;color:var(--ink);font-size:1rem}
-.chk input{width:22px;min-height:22px;height:22px}
-/* Navegación: abajo en móvil, arriba en escritorio */
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:5}
-nav button{flex:1;border:0;border-radius:0;background:none;min-height:60px;font-size:.85rem;color:var(--mute)}
-nav button[aria-selected=true]{color:var(--acc);font-weight:700;box-shadow:inset 0 3px var(--acc)}
-@media(min-width:760px){nav{position:static;max-width:860px;margin:0 auto 1rem;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}body{padding-bottom:2rem}nav button{min-height:48px;font-size:1rem}}
-section[hidden]{display:none}
-/* Tareas */
-.t{display:flex;gap:.7rem;align-items:flex-start;padding:.7rem 0;border-top:1px solid var(--line)}
-.t:first-child{border-top:0}
-.t input[type=checkbox]{width:24px;min-height:24px;height:24px;margin-top:.15rem}
-.t .b{flex:1;min-width:0}.t .n{font-weight:600;overflow-wrap:anywhere}
-.t.done .n{text-decoration:line-through;color:var(--mute)}
-.meta{font-size:.85rem;color:var(--mute)}
-.pr{display:inline-block;width:.6rem;height:.6rem;border-radius:50%;margin-right:.3rem}
-.pr.alta{background:var(--bad)}.pr.media{background:var(--hl)}.pr.baja{background:var(--ok)}
-.late{color:var(--bad);font-weight:600}
-.empty{text-align:center;color:var(--mute);padding:1.5rem .5rem}
-.seg{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.7rem}
-.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-/* Temporizadores */
-.clock{text-align:center}
-.ring{position:relative;width:min(70vw,260px);margin:.5rem auto}
-.ring svg{width:100%;transform:rotate(-90deg)}
-.ring .tx{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.big{font:700 clamp(2.4rem,12vw,3.4rem)/1 var(--serif);font-variant-numeric:tabular-nums}
-.pill{display:inline-block;padding:.15rem .7rem;border-radius:99px;background:var(--hl);color:#14213D;font-weight:600;font-size:.85rem}
-.status{display:inline-block;padding:.25rem .7rem;border-radius:99px;border:1px solid var(--line);font-size:.9rem}
-.status.on{color:var(--ok);border-color:var(--ok)}.status.off{color:var(--bad);border-color:var(--bad)}
-/* Toasts */
-#toasts{position:fixed;top:calc(.7rem + env(safe-area-inset-top));left:.7rem;right:.7rem;display:flex;flex-direction:column;gap:.5rem;align-items:center;z-index:20;pointer-events:none}
-.toast{pointer-events:auto;max-width:460px;width:100%;background:var(--ink);color:var(--bg);padding:.8rem 1rem;border-radius:12px;box-shadow:0 6px 24px #0004;display:flex;gap:.7rem;justify-content:space-between;align-items:center}
-.toast button{min-height:32px;padding:.1rem .6rem;background:none;color:inherit;border-color:currentColor}
-@media(prefers-reduced-motion:no-preference){.toast{animation:in .25s ease-out}@keyframes in{from{transform:translateY(-12px);opacity:0}}}
-</style>
-</head>
-<body>
+:root{--y:#F5C542;--p:#4B2BB5;--o:#E8612A;--g:#3E8F5A;--k:#000;--w:#fff;--gr:#ececec;--tx:#1a1a1a;font-family:'Open Sans',system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:#fff;color:var(--tx);font-size:15px}
+button,input,select{font:inherit}button{cursor:pointer}
+:focus-visible{outline:3px solid var(--p);outline-offset:2px}
+header{background:var(--k);display:flex;align-items:center;gap:16px;padding:10px 18px;flex-wrap:wrap}
+.logo{height:34px}
+nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+nav button{background:none;border:0;color:#fff;padding:8px 12px;font-weight:600;border-bottom:3px solid transparent}
+nav button.on{border-color:var(--y);color:var(--y)}
+.hero{background:var(--y);position:relative;overflow:hidden;padding:28px 18px 26px}
+.hero:before{content:"";position:absolute;right:-60px;top:0;bottom:0;width:42%;background:var(--p);clip-path:polygon(30% 0,100% 0,100% 100%,0 100%)}
+.hero:after{content:"";position:absolute;right:6%;top:18%;width:26%;height:64%;background:var(--o);clip-path:polygon(0 8%,100% 0,100% 100%,0 92%)}
+.hero>*{position:relative;z-index:1}
+h1{font-size:clamp(28px,5vw,48px);font-weight:800;line-height:1.05;margin:0 0 8px;max-width:560px}
+.sub{max-width:520px;margin:0 0 16px;font-size:14px}
+.add{background:#fff;padding:12px;display:flex;gap:8px;flex-wrap:wrap;max-width:760px;box-shadow:8px 8px 0 var(--k)}
+.add input{flex:1 1 240px;border:2px solid var(--k);padding:11px;min-width:0}
+.add select{border:2px solid var(--k);padding:10px;background:#fff;max-width:200px}
+.btn{background:var(--k);color:#fff;border:0;padding:11px 18px;font-weight:800}
+.btn.o{background:var(--o)}.btn.p{background:var(--p)}.btn.g{background:var(--g)}
+.btn.ghost{background:#fff;color:var(--k);border:2px solid var(--k)}
+.mic{background:var(--p);color:#fff;border:0;width:46px;font-size:20px}
+.mic.rec{background:var(--o);animation:pl 1s infinite}
+@keyframes pl{50%{opacity:.55}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;max-width:760px}
+.chip{background:rgba(255,255,255,.65);border:1.5px solid var(--k);padding:4px 10px;font-size:12px;border-radius:99px}
+main{padding:22px 18px 60px;max-width:1100px;margin:auto}
+h2{font-size:26px;font-weight:800;margin:0 0 4px}
+.lead{margin:0 0 18px;color:#555}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.stat{background:var(--k);color:#fff;padding:10px 16px;clip-path:polygon(0 0,100% 0,94% 100%,0 100%);padding-right:30px}
+.stat b{font-size:26px;display:block;color:var(--y)}
+.frog{background:var(--g);color:#fff;padding:16px 20px;margin-bottom:18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;clip-path:polygon(0 0,100% 0,98% 100%,0 100%)}
+.frog .t{flex:1;min-width:200px}.frog small{opacity:.85}.frog strong{font-size:18px;display:block}
+.task{display:flex;align-items:center;gap:10px;padding:10px 12px;border-left:6px solid var(--c,#999);background:#f7f7f7;margin-bottom:8px}
+.task.done .nm{text-decoration:line-through;opacity:.5}
+.task input[type=checkbox]{width:20px;height:20px;accent-color:var(--g)}
+.nm{flex:1;font-weight:600;min-width:0}
+.meta{font-size:12px;color:#555;display:block;font-weight:400}
+.tag{font-size:11px;font-weight:800;padding:3px 8px;border:0;color:#fff}
+.q1{background:var(--o)}.q2{background:var(--p)}.q3{background:var(--y);color:#000}.q4{background:#888}
+.ib{background:none;border:0;font-size:17px;padding:4px 6px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.hero:before{width:30%}.hero:after{display:none}}
+.quad{min-height:170px;padding:12px;border-top:8px solid var(--c);background:#f7f7f7}
+.quad h3{margin:0;font-size:17px;font-weight:800}.quad small{display:block;color:#555;margin-bottom:8px}
+.quad.over{background:#fff3cf;outline:3px dashed var(--k)}
+.quad .task{background:#fff;cursor:grab}
+.pomo{display:flex;gap:28px;flex-wrap:wrap;align-items:center}
+.ring{position:relative;width:260px;height:260px}
+.ring svg{transform:rotate(-90deg)}
+.ring .tm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:54px;font-weight:800}
+.ring .tm small{font-size:14px;font-weight:600}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.seg button{padding:8px 14px;border:2px solid var(--k);background:#fff;font-weight:600}
+.seg button.on{background:var(--k);color:#fff}
+.tabs2{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tabs2 button{padding:8px 14px;border:2px solid var(--p);background:#fff;color:var(--p);font-weight:700}
+.tabs2 button.on{background:var(--p);color:#fff}
+.box{background:#fff8e1;border-left:6px solid var(--y);padding:12px 14px;margin-bottom:14px}
+.empty{padding:26px;text-align:center;background:#f7f7f7;color:#666}
+.blk{display:flex;gap:12px;margin-bottom:6px}.blk b{width:110px;color:var(--p);flex:none}
+.row2{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.row2 input{border:2px solid var(--k);padding:9px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--k);color:#fff;padding:12px 20px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:9;max-width:90vw}
+#toast.on{opacity:1}
+footer{background:var(--g);color:#fff;padding:18px;font-size:13px}
+</style></head><body>
 <header>
-  <h1><mark>Hora</mark> de estudio</h1>
-  <button id="themeBtn" aria-label="Cambiar tema claro u oscuro">Tema</button>
+<svg class="logo" viewBox="0 0 150 36" aria-label="Mónica Herrera"><g transform="translate(18 18) rotate(45)"><rect x="-12" y="-12" width="24" height="24" fill="#3E8F5A"/><rect x="-8" y="-8" width="16" height="16" fill="none" stroke="#fff" stroke-width="2.5"/><rect x="-3" y="-3" width="6" height="6" fill="#fff"/></g><text x="40" y="16" fill="#fff" font-family="Open Sans,sans-serif" font-weight="600" font-size="14" letter-spacing="1">MÓNICA</text><text x="40" y="31" fill="#fff" font-family="Open Sans,sans-serif" font-weight="600" font-size="14" letter-spacing="1">HERRERA</text></svg>
+<nav id="nav"></nav>
 </header>
-<div id="toasts" role="status" aria-live="polite"></div>
-
-<main>
-<nav role="tablist" aria-label="Herramientas">
-  <button role="tab" data-tab="agenda" aria-selected="true">📅 Agenda</button>
-  <button role="tab" data-tab="pomo" aria-selected="false">🍅 Pomodoro</button>
-  <button role="tab" data-tab="box" aria-selected="false">⏳ Bloques</button>
-  <button role="tab" data-tab="set" aria-selected="false">⚙️ Ajustes</button>
-</nav>
-
-<!-- ===== AGENDA ===== -->
-<section id="agenda">
-  <form class="card" id="taskForm">
-    <h2>Nueva tarea o bloque</h2>
-    <div class="grid">
-      <div><label for="tTitle">¿Qué tienes que hacer?</label><input id="tTitle" required maxlength="80" placeholder="Ej. Entregar ensayo de Historia"></div>
-      <div><label for="tSub">Materia</label><input id="tSub" maxlength="40" placeholder="Ej. Historia"></div>
-      <div><label for="tWhen">Fecha y hora (opcional)</label><input id="tWhen" type="datetime-local"></div>
-      <div><label for="tDur">Duración en min (opcional)</label><input id="tDur" type="number" min="5" max="600" step="5" placeholder="60"></div>
-      <div><label for="tPri">Prioridad</label><select id="tPri"><option value="alta">Alta</option><option value="media" selected>Media</option><option value="baja">Baja</option></select></div>
-    </div>
-    <label class="chk"><input type="checkbox" id="tRem" checked> Avisarme 10 min y 5 min antes, y al llegar la hora</label>
-    <button class="p" type="submit">Agregar a mi agenda</button>
-  </form>
-  <div class="card">
-    <div class="seg" id="filters" role="group" aria-label="Filtrar tareas">
-      <button data-f="hoy" aria-pressed="true">Hoy</button><button data-f="prox" aria-pressed="false">Próximas</button>
-      <button data-f="todas" aria-pressed="false">Todas</button><button data-f="hechas" aria-pressed="false">Hechas</button>
-    </div>
-    <div id="taskList"></div>
-  </div>
+<section class="hero">
+<h1>Tu tiempo, bajo control</h1>
+<p class="sub">Apunta una tarea escribiendo o hablando. Tiempo CIM la ordena por urgencia e importancia y te dice qué hacer primero.</p>
+<div class="add">
+<input id="in" placeholder="Ej: Entregar ensayo de Branding el viernes (2 horas)" aria-label="Nueva tarea" autocomplete="off">
+<select id="sel" aria-label="Materia"></select>
+<button class="mic" id="mic" title="Dictar por voz" aria-label="Dictar por voz">🎤</button>
+<button class="btn o" id="addb">Agregar tarea</button>
+</div>
+<div class="chips" id="chips"></div>
 </section>
-
-<!-- ===== POMODORO ===== -->
-<section id="pomo" hidden>
-  <div class="card clock">
-    <span class="pill" id="pMode">Enfoque</span>
-    <div class="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="var(--line)" stroke-width="6"/><circle id="pArc" cx="50" cy="50" r="45" fill="none" stroke="var(--acc)" stroke-width="6" stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="0"/></svg>
-      <div class="tx"><div class="big" id="pTime">25:00</div><div class="meta" id="pCycles"></div></div></div>
-    <div class="row" style="justify-content:center">
-      <button class="p" id="pGo">Iniciar</button><button id="pReset">Reiniciar</button><button id="pSkip">Saltar etapa</button>
-    </div>
-  </div>
-  <div class="card"><h2>Tiempos (minutos)</h2>
-    <div class="grid">
-      <div><label for="pF">Enfoque</label><input id="pF" type="number" min="1" max="120"></div>
-      <div><label for="pS">Descanso corto</label><input id="pS" type="number" min="1" max="60"></div>
-      <div><label for="pL">Descanso largo</label><input id="pL" type="number" min="1" max="90"></div>
-      <div><label for="pE">Largo cada (ciclos)</label><input id="pE" type="number" min="2" max="10"></div>
-    </div>
-    <label class="chk"><input type="checkbox" id="pW"> Avisar cuando queden 5 min en bloques de enfoque largos</label>
-  </div>
-</section>
-
-<!-- ===== BLOQUES ===== -->
-<section id="box" hidden>
-  <div class="card clock">
-    <span class="pill">Cuenta regresiva con avisos</span>
-    <div class="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="var(--line)" stroke-width="6"/><circle id="bArc" cx="50" cy="50" r="45" fill="none" stroke="var(--acc)" stroke-width="6" stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="0"/></svg>
-      <div class="tx"><div class="big" id="bTime">45:00</div></div></div>
-    <p class="meta" id="bNext" style="margin:.2rem 0 1rem"></p>
-    <div class="row" style="justify-content:center">
-      <button class="p" id="bGo">Iniciar</button><button id="bReset">Reiniciar</button>
-    </div>
-  </div>
-  <div class="card"><h2>Configura tu bloque</h2>
-    <div class="seg" id="presets" role="group" aria-label="Duraciones rápidas"></div>
-    <div class="grid"><div><label for="bMin">Duración en minutos</label><input id="bMin" type="number" min="1" max="600"></div></div>
-    <label class="chk"><input type="checkbox" id="b10"> Avisar cuando queden 10 minutos</label>
-    <label class="chk"><input type="checkbox" id="b5"> Avisar cuando queden 5 minutos</label>
-    <label class="chk"><input type="checkbox" id="b1"> Avisar cuando quede 1 minuto</label>
-    <p class="meta">Siempre te avisamos al terminar. Los avisos que no caben en la duración se omiten.</p>
-  </div>
-</section>
-
-<!-- ===== AJUSTES ===== -->
-<section id="set" hidden>
-  <div class="card"><h2>Notificaciones</h2>
-    <p><span class="status" id="permSt"></span></p>
-    <div class="row"><button class="p" id="permBtn">Activar notificaciones</button><button id="testBtn">Probar notificación</button></div>
-    <label class="chk"><input type="checkbox" id="sndChk"> Sonido suave al avisar</label>
-    <p class="meta">Si el sistema las bloquea, igual verás avisos dentro de la página. Mantén esta pestaña abierta (puede estar en segundo plano).</p>
-  </div>
-  <div class="card"><h2>Tus datos</h2>
-    <p class="meta">Todo se guarda en este dispositivo. Nada se envía a internet.</p>
-    <div class="row"><button id="expBtn">Exportar respaldo</button><button id="demoBtn">Cargar ejemplos</button><button class="d" id="clrBtn">Borrar todo</button></div>
-  </div>
-</section>
-</main>
-
+<main id="main"></main>
+<footer>Av. Dr. Manuel Gallardo 3-3, Santa Tecla, La Libertad, El Salvador · © 2026 Mónica Herrera · Proyecto de gestión del tiempo estudiantil</footer>
+<div id="toast" role="status"></div>
 <script>
-"use strict";
-/* ========== 1. ESTADO Y PERSISTENCIA ========== */
-const KEY = "horaEstudio.v1";
-const DEF = () => ({
-  tasks: [], fired: {},
-  pomo: { focus: 25, short: 5, long: 15, every: 4, warn: true, mode: "focus", cycles: 0, endAt: null, left: null, w5: false },
-  box: { min: 45, w10: true, w5: true, w1: false, endAt: null, left: null, fired: [] },
-  prefs: { sound: true, theme: "auto" }
-});
-let S;
-try { S = Object.assign(DEF(), JSON.parse(localStorage.getItem(KEY) || "{}")); } catch { S = DEF(); }
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
-const $ = id => document.getElementById(id);
-const pad = n => String(n).padStart(2, "0");
-const fmt = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return pad(Math.floor(s / 60)) + ":" + pad(s % 60); };
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const PAL=['#4B2BB5','#E8612A','#3E8F5A','#d4a017','#c2185b','#0277bd'];
+let S;try{S=JSON.parse(localStorage.getItem('tcim'))}catch(e){}
+S=S||{cycle:'Ciclo II 2026',subs:['Estrategia de Marca','Publicidad Digital','Investigación de Mercados','Producción Audiovisual','Comportamiento del Consumidor'],tasks:[],pomos:{}};
+const save=()=>{try{localStorage.setItem('tcim',JSON.stringify(S))}catch(e){}};
+const iso=d=>d.toISOString().slice(0,10),today=()=>{const d=new Date();d.setHours(12,0,0,0);return d};
+const plus=n=>{const d=today();d.setDate(d.getDate()+n);return iso(d)};
+const diff=s=>Math.round((new Date(s+'T12:00')-today())/864e5);
+const dl=s=>{if(!s)return'Sin fecha';const n=diff(s);return n<0?'Vencida':n==0?'Hoy':n==1?'Mañana':new Date(s+'T12:00').toLocaleDateString('es',{weekday:'short',day:'numeric',month:'short'})};
+const colr=n=>PAL[Math.max(0,S.subs.indexOf(n))%PAL.length];
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const Q=t=>t.u&&t.i?1:t.i?2:t.u?3:4;
+const QN={1:['Hacer ya','Urgente e importante','#E8612A'],2:['Planificar','Importante, no urgente','#4B2BB5'],3:['Resolver rápido','Urgente, no importante','#F5C542'],4:['Soltar o dejar para después','Ni urgente ni importante','#888']};
+const pend=()=>S.tasks.filter(t=>!t.d).sort((a,b)=>Q(a)-Q(b)||(a.due||'9')<(b.due||'9')?-1:1);
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),2800)}
 
-/* ========== 2. AVISOS (toast + sonido + Notification API) ========== */
-let actx;
-function beep() {
-  if (!S.prefs.sound) return;
-  try {
-    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-    if (actx.state === "suspended") actx.resume();
-    [660, 880].forEach((f, i) => {            // dos notas suaves
-      const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime + i * 0.22;
-      o.frequency.value = f; o.type = "sine"; o.connect(g); g.connect(actx.destination);
-      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.18, t + 0.03); g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
-      o.start(t); o.stop(t + 0.4);
-    });
-  } catch {}
+/* ---- Entendimiento del texto ---- */
+const DAYS=['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+function parse(raw,subSel){
+ const x=norm(raw);let due=null,est=30,sub=subSel||'';
+ if(!sub)for(const s of S.subs){if(norm(s).split(/\s+/).filter(w=>w.length>3).some(w=>x.includes(w))){sub=s;break}}
+ if(/pasado manana/.test(x))due=plus(2);else if(/\bmanana\b/.test(x))due=plus(1);else if(/\bhoy\b|esta noche/.test(x))due=plus(0);
+ else if(/proxima semana|semana (que )?viene/.test(x))due=plus(7);else if(/esta semana/.test(x))due=plus(4);
+ else{const m=x.match(/en (\d+) dias?/);if(m)due=plus(+m[1]);else DAYS.forEach((d,i)=>{if(!due&&x.includes(d)){let n=(i-today().getDay()+7)%7;due=plus(n||7)}})}
+ let m=x.match(/(\d+)\s*(h|hora|horas)\b/);if(m)est=+m[1]*60;m=x.match(/(\d+)\s*(min|minutos)\b/);if(m)est=+m[1];
+ const imp=/examen|parcial|final|proyecto|entrega|presentacion|exposicion|ensayo|tesis|campana|portafolio|importante|nota|laboratorio/.test(x);
+ const low=/opcional|redes|ordenar|limpiar|chismear|ver videos|algun dia/.test(x);
+ const urg=/urgente|ahora|ya mismo|lo antes|ultimo momento/.test(x)||(due!==null&&diff(due)<=2);
+ let title=raw.trim().replace(/\s*\(\s*\d+\s*(h|hora|horas|min|minutos)\s*\)/i,'');title=title.charAt(0).toUpperCase()+title.slice(1);
+ return{id:Date.now()+Math.random(),title,sub,due,est,u:urg,i:low&&!imp?false:(imp||!!sub),d:false}
 }
-function toast(title, body) {
-  const el = document.createElement("div"); el.className = "toast";
-  const tx = document.createElement("div"); tx.innerHTML = "<strong></strong><div class='meta' style='color:inherit;opacity:.8'></div>";
-  tx.firstChild.textContent = title; tx.lastChild.textContent = body || "";
-  const x = document.createElement("button"); x.textContent = "Cerrar"; x.onclick = () => el.remove();
-  el.append(tx, x); $("toasts").append(el); setTimeout(() => el.remove(), 12000);
-}
-function notify(title, body) {
-  toast(title, body); beep();
-  if ("Notification" in window && Notification.permission === "granted") {
-    try { new Notification(title, { body, tag: title + body, icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Ctext y='8' font-size='8'%3E⏰%3C/text%3E%3C/svg%3E" }); }
-    catch { /* Android Chrome exige Service Worker: queda el toast */ }
-  }
-  if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
-}
-function renderPerm() {
-  const st = $("permSt"), b = $("permBtn");
-  const p = "Notification" in window ? Notification.permission : "nosoporte";
-  const map = { granted: ["Notificaciones activadas", "on"], denied: ["Bloqueadas en el navegador", "off"], default: ["Pendientes de activar", ""], nosoporte: ["Este navegador no las soporta", "off"] };
-  st.textContent = map[p][0]; st.className = "status " + map[p][1];
-  b.hidden = p === "granted" || p === "nosoporte";
-  b.textContent = p === "denied" ? "Cómo desbloquear" : "Activar notificaciones";
-}
-$("permBtn").onclick = async () => {
-  if (Notification.permission === "denied") return toast("Desbloquea los permisos", "Toca el candado junto a la dirección → Notificaciones → Permitir, y recarga.");
-  try { await Notification.requestPermission(); } catch {}
-  renderPerm();
-};
-$("testBtn").onclick = () => notify("Notificación de prueba", "Si ves y oyes esto, los avisos funcionan.");
+function addText(raw,subSel){
+ const parts=raw.split(/\s+(?:y luego|y despues|despues|luego|tambien|ademas|y tambien)\s+|[.;\n]\s*/i).map(s=>s.trim()).filter(s=>s.length>2);
+ parts.forEach(p=>S.tasks.push(parse(p,subSel)));save();
+ if(parts.length)toast(parts.length==1?'Listo: la puse en «'+QN[Q(S.tasks.at(-1))][0]+'»':'Agregué '+parts.length+' tareas y las ordené por prioridad');
+ render()}
 
-/* ========== 3. NAVEGACIÓN Y TEMA ========== */
-document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
-  document.querySelectorAll("nav button").forEach(x => x.setAttribute("aria-selected", x === b));
-  ["agenda", "pomo", "box", "set"].forEach(id => $(id).hidden = id !== b.dataset.tab);
-});
-const applyTheme = () => document.documentElement.dataset.theme = S.prefs.theme;
-$("themeBtn").onclick = () => { const o = ["auto", "light", "dark"]; S.prefs.theme = o[(o.indexOf(S.prefs.theme) + 1) % 3]; applyTheme(); save(); toast("Tema: " + { auto: "automático", light: "claro", dark: "oscuro" }[S.prefs.theme]); };
+/* ---- Voz ---- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec;
+$('#mic').onclick=()=>{
+ if(!SR)return toast('Tu navegador no permite dictado. Usa Chrome o Edge.');
+ if(rec){rec.stop();return}
+ rec=new SR();rec.lang='es-SV';rec.interimResults=true;$('#mic').classList.add('rec');toast('Te escucho… di tus tareas');
+ rec.onresult=e=>{$('#in').value=[...e.results].map(r=>r[0].transcript).join(' ')};
+ rec.onerror=()=>toast('No pude usar el micrófono. Revisa el permiso del navegador.');
+ rec.onend=()=>{$('#mic').classList.remove('rec');rec=null;const v=$('#in').value;if(v.trim()){addText(v,$('#sel').value);$('#in').value=''}};
+ rec.start()};
 
-/* ========== 4. AGENDA ========== */
-let filter = "hoy";
-const dueOf = t => t.when ? new Date(t.when).getTime() : null;
-$("taskForm").onsubmit = e => {
-  e.preventDefault();
-  S.tasks.push({ id: Date.now(), title: $("tTitle").value.trim(), sub: $("tSub").value.trim(), when: $("tWhen").value, dur: +$("tDur").value || 0, pri: $("tPri").value, rem: $("tRem").checked, done: false });
-  e.target.reset(); $("tRem").checked = true; save(); renderTasks(); $("tTitle").focus();
-};
-document.querySelectorAll("#filters button").forEach(b => b.onclick = () => {
-  filter = b.dataset.f; document.querySelectorAll("#filters button").forEach(x => x.setAttribute("aria-pressed", x === b)); renderTasks();
-});
-function renderTasks() {
-  const now = new Date(), d0 = new Date(now).setHours(0, 0, 0, 0), d1 = d0 + 864e5;
-  const f = { hoy: t => !t.done && (!t.when || dueOf(t) < d1), prox: t => !t.done && t.when && dueOf(t) >= d1, todas: t => !t.done, hechas: t => t.done }[filter];
-  const list = S.tasks.filter(f).sort((a, b) => (dueOf(a) ?? 9e15) - (dueOf(b) ?? 9e15));
-  const box = $("taskList"); box.innerHTML = "";
-  if (!list.length) {
-    box.innerHTML = "<div class='empty'></div>";
-    box.firstChild.textContent = { hoy: "Nada pendiente para hoy. Agrega tu primera tarea arriba y te avisamos antes de que llegue.", prox: "No tienes tareas futuras. Planear con tiempo es la mitad del trabajo.", todas: "Tu agenda está vacía. Empieza con algo pequeño: tu próxima clase o entrega.", hechas: "Aún no has completado tareas. ¡Marca la primera!" }[filter];
-    return;
-  }
-  list.forEach(t => {
-    const el = document.createElement("div"); el.className = "t" + (t.done ? " done" : "");
-    const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = t.done; cb.setAttribute("aria-label", "Completar " + t.title);
-    cb.onchange = () => { t.done = cb.checked; save(); renderTasks(); };
-    const b = document.createElement("div"); b.className = "b";
-    const n = document.createElement("div"); n.className = "n"; n.textContent = t.title;
-    const m = document.createElement("div"); m.className = "meta";
-    const late = !t.done && t.when && dueOf(t) < Date.now();
-    const when = t.when ? new Date(t.when).toLocaleString("es", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "Sin hora";
-    m.innerHTML = "<span class='pr " + t.pri + "'></span>";
-    m.append([t.sub, when, t.dur ? t.dur + " min" : "", t.rem && t.when ? "🔔" : ""].filter(Boolean).join(" · "));
-    if (late) { const l = document.createElement("span"); l.className = "late"; l.textContent = " · Vencida"; m.append(l); }
-    b.append(n, m);
-    const del = document.createElement("button"); del.className = "d"; del.textContent = "Quitar"; del.setAttribute("aria-label", "Quitar " + t.title);
-    del.onclick = () => { S.tasks = S.tasks.filter(x => x !== t); save(); renderTasks(); };
-    el.append(cb, b, del); box.append(el);
-  });
-}
-/* Avisos de agenda: 10 min, 5 min y hora exacta. Solo dispara el más reciente ya cruzado. */
-function taskTick() {
-  const now = Date.now();
-  S.tasks.forEach(t => {
-    if (t.done || !t.rem || !t.when) return;
-    const due = dueOf(t), crossed = [10, 5, 0].filter(m => now >= due - m * 6e4 && !S.fired[t.id + ":" + m]);
-    if (!crossed.length) return;
-    crossed.forEach(m => S.fired[t.id + ":" + m] = 1); save();
-    const m = Math.min(...crossed);
-    if (now - (due - m * 6e4) > 3e5) return;       // aviso viejo (ej. al reabrir): se ignora
-    notify(m ? `Te quedan ${m} minutos` : "¡Es la hora!", t.title + (t.sub ? " · " + t.sub : ""));
-  });
-}
+/* ---- UI base ---- */
+let view='hoy',tech='rana';
+const NAV=[['hoy','Hoy'],['matriz','Matriz'],['pomo','Pomodoro'],['tec','Técnicas'],['mat','Materias']];
+function shell(){
+ $('#nav').innerHTML=NAV.map(([k,n])=>`<button class="${view==k?'on':''}" data-v="${k}">${n}</button>`).join('');
+ const v=$('#sel').value;$('#sel').innerHTML='<option value="">Materia (automática)</option>'+S.subs.map(s=>`<option ${s==v?'selected':''}>${esc(s)}</option>`).join('');
+ $('#chips').innerHTML=['Parcial de '+(S.subs[0]||'Marca')+' el viernes (3 horas)','Revisar redes mañana (15 min)','Mandar correo al profe hoy (2 min)'].map(t=>`<button class="chip" data-ex="${esc(t)}">${esc(t)}</button>`).join('')}
+$('#nav').onclick=e=>{const v=e.target.dataset.v;if(v){view=v;render();scrollTo({top:$('.hero').offsetHeight,behavior:'smooth'})}};
+$('#chips').onclick=e=>{if(e.target.dataset.ex){$('#in').value=e.target.dataset.ex;$('#in').focus()}};
+$('#addb').onclick=()=>{const v=$('#in').value;if(v.trim().length<3)return toast('Escribe la tarea primero, por ejemplo: «Tarea de Publicidad mañana»');addText(v,$('#sel').value);$('#in').value=''};
+$('#in').onkeydown=e=>{if(e.key=='Enter')$('#addb').click()};
 
-/* ========== 5. POMODORO (basado en Date.now) ========== */
-const P = S.pomo, NAMES = { focus: "Enfoque", short: "Descanso corto", long: "Descanso largo" };
-const pDur = () => P[P.mode] * 6e4;
-const pLeft = () => P.endAt ? P.endAt - Date.now() : (P.left ?? pDur());
-function pNext() {
-  if (P.mode === "focus") { P.cycles++; P.mode = P.cycles % P.every === 0 ? "long" : "short"; } else P.mode = "focus";
-  P.endAt = P.left = null; P.w5 = false;
-}
-$("pGo").onclick = () => {
-  if (P.endAt) { P.left = P.endAt - Date.now(); P.endAt = null; }          // pausar
-  else { P.endAt = Date.now() + pLeft(); P.left = null; beep && actx === undefined && beep(); }   // iniciar/reanudar
-  save(); renderPomo();
-};
-$("pReset").onclick = () => { P.endAt = P.left = null; P.w5 = false; save(); renderPomo(); };
-$("pSkip").onclick = () => { pNext(); save(); renderPomo(); };
-function pomoTick() {
-  if (!P.endAt) return;
-  const l = P.endAt - Date.now();
-  if (P.warn && P.mode === "focus" && !P.w5 && pDur() >= 10 * 6e4 && l <= 5 * 6e4 && l > 0) { P.w5 = true; save(); notify("Te quedan 5 minutos", "Ve cerrando lo que estás haciendo."); }
-  if (l <= 0) {
-    const was = P.mode; pNext(); save();
-    notify(was === "focus" ? "¡Enfoque completado!" : "Fin del descanso", was === "focus" ? "Toca " + NAMES[P.mode].toLowerCase() + ". Inícialo cuando estés listo." : "¿Listo para otro bloque de enfoque?");
-  }
-}
-function renderPomo() {
-  const l = pLeft();
-  $("pTime").textContent = fmt(l); $("pMode").textContent = NAMES[P.mode];
-  $("pCycles").textContent = P.cycles + " ciclos completados";
-  $("pGo").textContent = P.endAt ? "Pausar" : (P.left != null ? "Reanudar" : "Iniciar");
-  $("pArc").style.strokeDashoffset = 282.7 * (1 - Math.max(0, l) / pDur());
-}
-[["pF", "focus"], ["pS", "short"], ["pL", "long"], ["pE", "every"]].forEach(([id, k]) => {
-  $(id).value = P[k];
-  $(id).onchange = () => { P[k] = Math.max(1, +$(id).value || P[k]); $(id).value = P[k]; if (!P.endAt) P.left = null; save(); renderPomo(); };
-});
-$("pW").checked = P.warn; $("pW").onchange = () => { P.warn = $("pW").checked; save(); };
+const row=t=>`<div class="task ${t.d?'done':''}" style="--c:${colr(t.sub)}" draggable="true" data-id="${t.id}">
+<input type="checkbox" ${t.d?'checked':''} data-act="done" data-id="${t.id}" aria-label="Completar">
+<span class="nm">${esc(t.title)}<span class="meta">${esc(t.sub||'Sin materia')} · ${dl(t.due)} · ${t.est} min</span></span>
+<button class="tag q${Q(t)}" data-act="q" data-id="${t.id}" title="Toca para cambiar de cuadrante">${QN[Q(t)][0]}</button>
+<button class="ib" data-act="focus" data-id="${t.id}" title="Enfocarme con Pomodoro">▶</button>
+<button class="ib" data-act="del" data-id="${t.id}" title="Borrar" aria-label="Borrar">✕</button></div>`;
+const list=a=>a.length?a.map(row).join(''):'<div class="empty">Nada por aquí. Agrega una tarea arriba, escribiendo o con el micrófono.</div>';
 
-/* ========== 6. BLOQUES CON AVISOS PROGRESIVOS ========== */
-const B = S.box, TH = () => [[10, B.w10], [5, B.w5], [1, B.w1]].filter(x => x[1] && x[0] * 6e4 < B.min * 6e4).map(x => x[0]);
-const bLeft = () => B.endAt ? B.endAt - Date.now() : (B.left ?? B.min * 6e4);
-$("bGo").onclick = () => {
-  if (B.endAt) { B.left = B.endAt - Date.now(); B.endAt = null; }
-  else { if (B.left == null) B.fired = []; B.endAt = Date.now() + bLeft(); B.left = null; }
-  save(); renderBox();
-};
-$("bReset").onclick = () => { B.endAt = B.left = null; B.fired = []; save(); renderBox(); };
-function boxTick() {
-  if (!B.endAt) return;
-  const l = B.endAt - Date.now();
-  const due = TH().filter(m => l <= m * 6e4 && !B.fired.includes(m));
-  if (due.length) { B.fired.push(...due); save(); const m = Math.min(...due); if (l > 0) notify(`Te quedan ${m} minuto${m > 1 ? "s" : ""}`, "Tu bloque de estudio está por terminar."); }
-  if (l <= 0) { B.endAt = B.left = null; B.fired = []; save(); notify("¡Tiempo terminado!", "Tu bloque de " + B.min + " min acabó."); }
-}
-function renderBox() {
-  const l = bLeft(), total = B.min * 6e4;
-  $("bTime").textContent = fmt(l);
-  $("bArc").style.strokeDashoffset = 282.7 * (1 - Math.max(0, l) / total);
-  $("bGo").textContent = B.endAt ? "Pausar" : (B.left != null ? "Reanudar" : "Iniciar");
-  const nxt = TH().filter(m => m * 6e4 < l - 500 && !B.fired.includes(m))[0];
-  $("bNext").textContent = nxt ? `Próximo aviso: cuando queden ${nxt} min (en ${fmt(l - nxt * 6e4)})` : "Próximo aviso: al terminar";
-}
-[[10, "b10"], [5, "b5"], [1, "b1"]].forEach(([m, id]) => { $(id).checked = B["w" + m]; $(id).onchange = () => { B["w" + m] = $(id).checked; save(); renderBox(); }; });
-$("bMin").value = B.min;
-$("bMin").onchange = () => { B.min = Math.max(1, +$("bMin").value || 45); B.endAt = B.left = null; B.fired = []; save(); renderBox(); };
-[15, 25, 45, 60, 90].forEach(m => {
-  const b = document.createElement("button"); b.textContent = m + " min";
-  b.onclick = () => { $("bMin").value = m; $("bMin").onchange(); }; $("presets").append(b);
-});
+function vHoy(){
+ const p=pend(),fr=p[0],pm=S.pomos[iso(today())]||0;
+ return`<h2>Tu plan de hoy</h2><p class="lead">Ordenado por prioridad: primero lo urgente e importante.</p>
+<div class="stats"><div class="stat"><b>${p.length}</b>pendientes</div><div class="stat"><b>${p.filter(t=>Q(t)==1).length}</b>para hacer ya</div><div class="stat"><b>${pm}</b>pomodoros hoy</div></div>
+${fr?`<div class="frog"><span style="font-size:34px">🐸</span><div class="t"><small>Empieza por aquí (la rana del día)</small><strong>${esc(fr.title)}</strong></div><button class="btn" data-act="focus" data-id="${fr.id}">Empezar ahora</button></div>`:''}
+${list(p)}${S.tasks.some(t=>t.d)?`<h2 style="margin-top:24px;font-size:18px">Completadas</h2>`+S.tasks.filter(t=>t.d).map(row).join('')+`<button class="btn ghost" data-act="clear">Limpiar completadas</button>`:''}`}
 
-/* ========== 7. AJUSTES / DATOS ========== */
-$("sndChk").checked = S.prefs.sound; $("sndChk").onchange = () => { S.prefs.sound = $("sndChk").checked; save(); if (S.prefs.sound) beep(); };
-$("expBtn").onclick = () => {
-  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 2)], { type: "application/json" }));
-  a.download = "hora-de-estudio-respaldo.json"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-};
-$("demoBtn").onclick = () => {
-  const at = m => { const d = new Date(Date.now() + m * 6e4 - new Date().getTimezoneOffset() * 6e4); return d.toISOString().slice(0, 16); };
-  S.tasks.push({ id: Date.now(), title: "Ejemplo: repasar apuntes", sub: "Demo", when: at(11), dur: 30, pri: "alta", rem: true, done: false },
-               { id: Date.now() + 1, title: "Ejemplo: leer capítulo 3", sub: "Demo", when: at(60 * 26), dur: 45, pri: "media", rem: true, done: false });
-  save(); renderTasks(); toast("Ejemplos cargados", "El primero te avisará en 1 minuto (faltarán 10).");
-};
-$("clrBtn").onclick = () => { if (confirm("¿Borrar tareas, ciclos y ajustes de este dispositivo?")) { localStorage.removeItem(KEY); location.reload(); } };
+function vMatriz(){
+ return`<h2>Matriz de Eisenhower</h2><p class="lead">Arrastra una tarea a otro cuadrante, o toca su etiqueta para moverla.</p>
+<div class="grid">${[1,2,3,4].map(n=>`<div class="quad" style="--c:${QN[n][2]}" data-q="${n}"><h3>${QN[n][0]}</h3><small>${QN[n][1]}</small>${pend().filter(t=>Q(t)==n).map(row).join('')||'<small>Vacío</small>'}</div>`).join('')}</div>`}
 
-/* ========== 8. BUCLE PRINCIPAL ========== */
-function tick() {
-  taskTick(); pomoTick(); boxTick(); renderPomo(); renderBox();
-  document.title = P.endAt ? fmt(pLeft()) + " · " + NAMES[P.mode] : B.endAt ? fmt(bLeft()) + " · Bloque" : "Hora de estudio";
-}
-document.addEventListener("visibilitychange", tick);           // recalcula al volver a la pestaña
-document.addEventListener("click", () => { try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); actx.resume(); } catch {} }, { once: true });
-applyTheme(); renderPerm(); renderTasks(); tick();
-setInterval(tick, 1000);                                        // solo "despierta"; el tiempo real sale de Date.now()
-setInterval(renderTasks, 60000);
-</script>
-</body>
-</html>
+const PRE={25:[25,5],50:[50,10],15:[15,3]};
+let P={mode:'w',len:25,left:1500,run:false,tid:null,iv:null};
+const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+function vPomo(){
+ const tot=(P.mode=='w'?P.len:PRE[P.len][1])*60,C=2*Math.PI*118,t=S.tasks.find(x=>x.id==P.tid);
+ return`<h2>Pomodoro</h2><p class="lead">Trabaja en bloques sin distracciones y descansa entre ellos.</p>
+<div class="pomo"><div class="ring"><svg width="260" height="260"><circle cx="130" cy="130" r="118" fill="none" stroke="#ececec" stroke-width="14"/><circle id="arc" cx="130" cy="130" r="118" fill="none" stroke="${P.mode=='w'?'#E8612A':'#3E8F5A'}" stroke-width="14" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-P.left/tot)}"/></svg><div class="tm"><span id="tmv">${fmt(P.left)}</span><small>${P.mode=='w'?'Enfoque':'Descanso'}</small></div></div>
+<div style="flex:1;min-width:240px"><div class="seg">${Object.keys(PRE).map(k=>`<button class="${P.len==k?'on':''}" data-act="preset" data-id="${k}">${k} / ${PRE[k][1]} min</button>`).join('')}</div>
+<label>Tarea en foco<br><select id="ptask" style="padding:9px;border:2px solid #000;width:100%;margin:6px 0 12px"><option value="">— Sin tarea —</option>${pend().map(x=>`<option value="${x.id}" ${x.id==P.tid?'selected':''}>${esc(x.title)}</option>`).join('')}</select></label>
+<button class="btn ${P.run?'':'o'}" data-act="pstart">${P.run?'Pausar':'Iniciar'}</button> <button class="btn ghost" data-act="preset" data-id="${P.len}">Reiniciar</button>
+<p>Hoy llevas <b>${S.pomos[iso(today())]||0}</b> pomodoros${t?' · en foco: <b>'+esc(t.title)+'</b>':''}. Cada 4, toma un descanso largo.</p></div></div>`}
+function tick(){
+ if(!P.run)return;P.left--;
+ if(P.left<=0){beep();if(P.mode=='w'){const k=iso(today());S.pomos[k]=(S.pomos[k]||0)+1;save();P.mode='b';P.left=PRE[P.len][1]*60;toast('¡Bloque terminado! Descansa un poco.')}else{P.mode='w';P.left=P.len*60;toast('A enfocarse otra vez')}render();return}
+ const e=$('#tmv');if(e){e.textContent=fmt(P.left);const tot=(P.mode=='w'?P.len:PRE[P.len][1])*60;$('#arc').setAttribute('stroke-dashoffset',2*Math.PI*118*(1-P.left/tot))}
+ document.title=fmt(P.left)+' · Tiempo CIM'}
+function beep(){try{const a=new AudioContext(),o=a.createOscillator();o.frequency.value=660;o.connect(a.destination);o.start();setTimeout(()=>o.stop(),600)}catch(e){}}
+setInterval(tick,1000);
+
+function vTec(){
+ const p=pend(),T={rana:['Come la rana','Haz primero la tarea más difícil o importante del día; el resto parece fácil después.',()=>list(p.slice(0,1))],
+ 135:['1-3-5','Cada día: 1 tarea grande, 3 medianas y 5 pequeñas. Nada más.',()=>[['1 grande',p.slice(0,1)],['3 medianas',p.slice(1,4)],['5 pequeñas',p.slice(4,9)]].map(([n,a])=>`<h3>${n}</h3>${list(a)}`).join('')],
+ ivy:['Ivy Lee','Anota las 6 tareas más importantes en orden. Haz una a la vez y no pases a la siguiente hasta terminar.',()=>list(p.slice(0,6))],
+ dos:['Regla de 2 minutos','Si toma 2 minutos o menos, hazla ya. Escribe «(2 min)» al apuntarla.',()=>list(p.filter(t=>t.est<=2))],
+ blq:['Bloques de tiempo','Cada tarea con su hora asignada en el calendario del día.',blocks]};
+ function blocks(){let m=(+($('#st')?.value||8))*60;const a=p.slice(0,8);return`<div class="row2"><label>Empiezo a las <input id="st" type="number" min="5" max="22" value="${m/60}" style="width:70px"> h</label></div>`+(a.length?a.map(t=>{const d=Math.min(Math.max(t.est,15),90),s=m;m+=d+10;const f=x=>String(Math.floor(x/60)%24).padStart(2,'0')+':'+String(x%60).padStart(2,'0');return`<div class="blk"><b>${f(s)} – ${f(s+d)}</b><span>${esc(t.title)} <small>(${esc(t.sub||'')})</small></span></div>`}).join('')+'<small>Incluye 10 minutos de pausa entre bloques.</small>':'<div class="empty">Agrega tareas para armar tu horario.</div>')}
+ return`<h2>Técnicas de gestión del tiempo</h2><p class="lead">Todas usan las mismas tareas. Elige la que mejor te funcione hoy.</p>
+<div class="tabs2">${Object.entries(T).map(([k,v])=>`<button class="${tech==k?'on':''}" data-act="tech" data-id="${k}">${v[0]}</button>`).join('')}</div>
+<div class="box"><b>${T[tech][0]}.</b> ${T[tech][1]}</div>${T[tech][2]()}`}
+
+function vMat(){
+ return`<h2>Mis materias</h2><p class="lead">Las materias del ciclo sirven de base para ordenar cada tarea.</p>
+<div class="row2"><input id="cyc" value="${esc(S.cycle)}" aria-label="Ciclo"> <button class="btn g" data-act="cyc">Guardar ciclo</button></div>
+<div class="row2"><input id="ns" placeholder="Nueva materia"> <button class="btn" data-act="addsub">Agregar materia</button></div>
+${S.subs.map((s,i)=>`<div class="task" style="--c:${PAL[i%PAL.length]}"><span class="nm">${esc(s)}<span class="meta">${S.tasks.filter(t=>t.sub==s&&!t.d).length} pendientes</span></span><button class="ib" data-act="delsub" data-id="${i}" aria-label="Quitar">✕</button></div>`).join('')}`}
+
+function render(){shell();const V={hoy:vHoy,matriz:vMatriz,pomo:vPomo,tec:vTec,mat:vMat};$('#main').innerHTML=`<small style="color:#666">${esc(S.cycle)}</small>`+V[view]();
+ const pt=$('#ptask');if(pt)pt.onchange=()=>{P.tid=pt.value||null};const st=$('#st');if(st)st.onchange=render}
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act,id=b.dataset.id,t=S.tasks.find(x=>x.id==id);
+ if(a=='done'){t.d=b.checked;save();render()}
+ else if(a=='del'){S.tasks=S.tasks.filter(x=>x.id!=id);save();render()}
+ else if(a=='q'){const n=Q(t)%4+1;t.u=n==1||n==3;t.i=n==1||n==2;save();render()}
+ else if(a=='focus'){P.tid=id;P.mode='w';P.left=P.len*60;P.run=true;view='pomo';render();scrollTo({top:$('.hero').offsetHeight,behavior:'smooth'})}
+ else if(a=='clear'){S.tasks=S.tasks.filter(x=>!x.d);save();render()}
+ else if(a=='preset'){P.len=+id;P.mode='w';P.left=P.len*60;P.run=false;document.title='Tiempo CIM';render()}
+ else if(a=='pstart'){P.run=!P.run;render()}
+ else if(a=='tech'){tech=id;render()}
+ else if(a=='cyc'){S.cycle=$('#cyc').value||S.cycle;save();render();toast('Ciclo guardado')}
+ else if(a=='addsub'){const v=$('#ns').value.trim();if(v){S.subs.push(v);save();render()}}
+ else if(a=='delsub'){S.subs.splice(+id,1);save();render()}});
+document.addEventListener('dragstart',e=>{const t=e.target.closest('.task');if(t)e.dataTransfer.setData('text',t.dataset.id)});
+document.addEventListener('dragover',e=>{const q=e.target.closest('.quad');if(q){e.preventDefault();q.classList.add('over')}});
+document.addEventListener('dragleave',e=>{const q=e.target.closest('.quad');if(q)q.classList.remove('over')});
+document.addEventListener('drop',e=>{const q=e.target.closest('.quad');if(!q)return;e.preventDefault();const t=S.tasks.find(x=>x.id==e.dataTransfer.getData('text')),n=+q.dataset.q;if(t){t.u=n==1||n==3;t.i=n==1||n==2;save();render()}});
+render();
+</script></body></html>
